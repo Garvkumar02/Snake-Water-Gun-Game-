@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWG: Element Arena</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+</head>
+<body>
+    <canvas id="scene-canvas" aria-hidden="true"></canvas>
+
+    <!-- LANDING PAGE OVERLAY -->
+    <div id="landing-screen" class="landing-screen active-screen">
+        <div class="landing-content">
+            <h1 class="logo glow-logo">SWG: <span class="accent-text">ELEMENT ARENA</span></h1>
+            <p class="subtitle">Enter the 3D Cyber Arena and prove your skills in a best-of-5 showdown.</p>
+            <button id="enter-arena-btn" class="glow-btn large-btn mt-4">
+                <span>ENTER ARENA</span>
+                <div class="btn-glow"></div>
+            </button>
+        </div>
+    </div>
+
+    <div id="game-container" class="container hidden-screen">
+        <!-- Header -->
+        <header>
+            <div class="headline-badges">
+                <span class="badge-pill badge-pill-green">CLASSIC ARCADE</span>
+                <span class="badge-pill badge-pill-blue">BEST OF 5</span>
+            </div>
+            <h1 class="logo">SWG: <span class="accent-text">ELEMENT ARENA</span></h1>
+            <p class="subtitle">A timeless hand-game battle, redesigned as a sleek and polished arcade match.</p>
+        </header>
+
+        <section class="level-dashboard glass-panel">
+            <div class="level-header-row">
+                <span id="level-pill" class="level-pill">LEVEL 1 / 20</span>
+                <span id="round-pill" class="level-pill">ROUND 0 / 5</span>
+            </div>
+            <div class="level-meta-row">
+                <div class="level-message" id="level-message">Choose your weapon and start the best-of-5 showdown.</div>
+                <span id="status-pill" class="status-pill">READY</span>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-label">Level progress</div>
+                <div class="progress-track">
+                    <div id="level-progress-bar" class="progress-fill"></div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Scoreboard -->
+        <section class="scoreboard-container">
+            <div class="scoreboard glass-panel">
+                <div class="score-card player-score-card">
+                    <span class="score-label">PLAYER</span>
+                    <span id="player-score" class="score-value">0</span>
+                </div>
+                <div class="score-divider"></div>
+                <div class="score-card tie-score-card">
+                    <span class="score-label">TIES</span>
+                    <span id="tie-score" class="score-value">0</span>
+                </div>
+                <div class="score-divider"></div>
+                <div class="score-card computer-score-card">
+                    <span class="score-label">COMPUTER</span>
+                    <span id="computer-score" class="score-value">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Game Arena -->
+        <main class="game-arena">
+            
+            <!-- VIEW 0: Levels Selection Grid -->
+            <div id="levels-view" class="active-view">
+                <h2 class="view-title">Levels</h2>
+                <div class="levels-grid" id="levels-grid">
+                    <!-- Dynamically loaded via game.js -->
+                </div>
+            </div>
+
+            <!-- VIEW 1: Choice Selection Grid -->
+            <div id="choice-view" class="inactive-view">
+                <div class="view-header-row">
+                    <button id="back-to-levels-btn" class="secondary-btn">&larr; Levels Map</button>
+                    <h2 class="view-title">Choose your weapon</h2>
+                </div>
+                <div class="choices-grid">
+                    
+                    <!-- SNAKE CARD -->
+                    <button class="choice-card snake-theme" data-choice="snake" id="btn-snake">
+                        <div class="card-glow"></div>
+                        <div class="card-inner">
+                            <div class="icon-container">
+                                <!-- Snake SVG Icon -->
+                                <svg class="weapon-icon snake-icon" viewBox="0 0 100 100">
+                                    <defs>
+                                        <linearGradient id="snakeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#4ade80" />
+                                            <stop offset="50%" stop-color="#166534" />
+                                            <stop offset="100%" stop-color="#022c11" />
+                                        </linearGradient>
+                                        <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="3" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
+                                    <!-- Snake Body -->
+                                    <path d="M25,80 C35,85 55,85 65,80 C75,75 80,65 75,55 C70,45 50,50 45,35 C40,20 60,10 70,20 C75,25 78,35 75,40" fill="none" stroke="url(#snakeGrad)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-green)"/>
+                                    <!-- Cobra Hood -->
+                                    <path d="M35,28 C30,15 45,8 55,8 C65,8 80,15 75,28 C72,33 65,35 55,35 C45,35 38,33 35,28 Z" fill="url(#snakeGrad)" />
+                                    <!-- Snake Head -->
+                                    <path d="M48,12 C48,12 55,6 62,12 C65,15 62,22 55,22 C48,22 45,15 48,12 Z" fill="#22c55e" />
+                                    <!-- Snake Eyes -->
+                                    <circle cx="51" cy="14" r="1.5" fill="#ef4444" />
+                                    <circle cx="59" cy="14" r="1.5" fill="#ef4444" />
+                                    <!-- Fangs -->
+                                    <path d="M52,19 L50,23 M58,19 L60,23" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" />
+                                    <!-- Tongue -->
+                                    <path d="M55,22 L55,27 L53,30 M55,27 L57,30" fill="none" stroke="#f87171" stroke-width="1.5" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                            <span class="card-name">SNAKE</span>
+                            <span class="card-desc">Defeats Water</span>
+                        </div>
+                    </button>
+
+                    <!-- WATER CARD -->
+                    <button class="choice-card water-theme" data-choice="water" id="btn-water">
+                        <div class="card-glow"></div>
+                        <div class="card-inner">
+                            <div class="icon-container">
+                                <!-- Water Droplet SVG Icon -->
+                                <svg class="weapon-icon water-icon" viewBox="0 0 100 100">
+                                    <defs>
+                                        <linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#38bdf8" />
+                                            <stop offset="60%" stop-color="#0369a1" />
+                                            <stop offset="100%" stop-color="#0c4a6e" />
+                                        </linearGradient>
+                                        <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="3" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
+                                    <!-- Swirling Wave Base -->
+                                    <path d="M20,68 C25,50 35,45 50,45 C65,45 80,50 80,68 C80,82 65,85 50,85 C35,85 20,82 20,68 Z" fill="url(#waterGrad)" opacity="0.8" />
+                                    <!-- Splash Crests (Crown) -->
+                                    <path d="M24,60 Q15,42 22,40 Q28,38 32,50 Q36,25 45,28 Q52,30 48,45 Q62,15 70,22 Q75,28 65,52 Q82,40 85,50 Q87,58 76,64" fill="none" stroke="url(#waterGrad)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow-blue)" />
+                                    <!-- Dynamic floating water droplets -->
+                                    <circle cx="20" cy="30" r="3" fill="#bae6fd" filter="url(#glow-blue)" />
+                                    <circle cx="48" cy="18" r="2.5" fill="#e0f2fe" filter="url(#glow-blue)" />
+                                    <circle cx="78" cy="24" r="3.5" fill="#bae6fd" filter="url(#glow-blue)" />
+                                    <circle cx="88" cy="42" r="2" fill="#bae6fd" filter="url(#glow-blue)" />
+                                    <circle cx="12" cy="52" r="2.5" fill="#e0f2fe" filter="url(#glow-blue)" />
+                                    <!-- Glare Highlights -->
+                                    <path d="M35,68 Q50,78 65,68" fill="none" stroke="#bae6fd" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+                                </svg>
+                            </div>
+                            <span class="card-name">WATER</span>
+                            <span class="card-desc">Defeats Gun</span>
+                        </div>
+                    </button>
+
+                    <!-- GUN CARD -->
+                    <button class="choice-card gun-theme" data-choice="gun" id="btn-gun">
+                        <div class="card-glow"></div>
+                        <div class="card-inner">
+                            <div class="icon-container">
+                                <!-- Gun SVG Icon -->
+                                <svg class="weapon-icon gun-icon" viewBox="0 0 100 100">
+                                    <defs>
+                                        <linearGradient id="gunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stop-color="#fb7185" />
+                                            <stop offset="50%" stop-color="#9f1239" />
+                                            <stop offset="100%" stop-color="#4c0519" />
+                                        </linearGradient>
+                                        <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feGaussianBlur stdDeviation="3" result="blur" />
+                                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                                        </filter>
+                                    </defs>
+                                    <!-- Gun Main Body -->
+                                    <path d="M20,60 L20,38 L75,38 L78,44 L78,54 L75,60 Z" fill="url(#gunGrad)" stroke="#fda4af" stroke-width="1.5" />
+                                    <!-- Gun Barrel -->
+                                    <rect x="75" y="44" width="12" height="6" rx="1.5" fill="#1e293b" stroke="#fb7185" stroke-width="1" />
+                                    <!-- Neon Plasma Core / Rail -->
+                                    <line x1="28" y1="47" x2="68" y2="47" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" filter="url(#glow-red)" />
+                                    <!-- cooling vents -->
+                                    <line x1="35" y1="42" x2="35" y2="54" stroke="#4c0519" stroke-width="1.5" />
+                                    <line x1="43" y1="42" x2="43" y2="54" stroke="#4c0519" stroke-width="1.5" />
+                                    <line x1="51" y1="42" x2="51" y2="54" stroke="#4c0519" stroke-width="1.5" />
+                                    <line x1="59" y1="42" x2="59" y2="54" stroke="#4c0519" stroke-width="1.5" />
+                                    <!-- Handle/Grip -->
+                                    <path d="M25,60 L38,82 L50,82 L38,60 Z" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+                                    <!-- Trigger Guard and Trigger -->
+                                    <path d="M42,60 C42,68 34,68 34,60" fill="none" stroke="#fda4af" stroke-width="1.5" />
+                                    <path d="M38,60 L36,65" stroke="#ef4444" stroke-width="2" />
+                                    <!-- Laser Sight Indicator -->
+                                    <circle cx="70" cy="52" r="1.5" fill="#f43f5e" filter="url(#glow-red)" />
+                                </svg>
+                            </div>
+                            <span class="card-name">GUN</span>
+                            <span class="card-desc">Defeats Snake</span>
+                        </div>
+                    </button>
+                    
+                </div>
+            </div>
+
+            <!-- VIEW 2: Battle Showdown Arena -->
+            <div id="battle-view" class="inactive-view">
+                
+                <!-- Match result splash banner -->
+                <div class="result-banner-container">
+                    <div id="result-banner" class="result-banner">
+                        <span id="result-text">FIGHT!</span>
+                    </div>
+                </div>
+
+                <div class="battle-stage">
+                    
+                    <!-- Player Side -->
+                    <div class="battle-fighter player-fighter">
+                        <span class="fighter-label">YOUR CHOICE</span>
+                        <div class="battle-card-wrapper">
+                            <div id="player-battle-card" class="battle-card placeholder">
+                                <div class="card-glow"></div>
+                                <div class="card-inner">
+                                    <span class="card-symbol">?</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VS Spacer -->
+                    <div class="vs-container">
+                        <div class="vs-glow-orb">
+                            <span>VS</span>
+                        </div>
+                    </div>
+
+                    <!-- Computer Side -->
+                    <div class="battle-fighter computer-fighter">
+                        <span class="fighter-label">OPPONENT</span>
+                        <div class="battle-card-wrapper">
+                            <div id="computer-battle-card" class="battle-card placeholder">
+                                <div class="card-glow"></div>
+                                <div class="card-inner">
+                                    <span class="card-symbol">?</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Battle Effects Overlay -->
+                    <div id="battle-effects-overlay" class="battle-effects-overlay"></div>
+
+                </div>
+
+
+
+                <!-- Play Again button -->
+                <div class="action-container">
+                    <button id="play-again-btn" class="glow-btn">
+                        <span>PLAY AGAIN</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Scoreboard & Statistics Drawer / Toggle -->
+        <section class="game-dashboard glass-panel">
+            <div class="dashboard-header">
+                <h3>MATCH LOG</h3>
+                <button id="reset-btn" class="secondary-btn">Reset Stats</button>
+            </div>
+            <div class="history-list-wrapper">
+                <ul id="history-list">
+                    <!-- History logs appended dynamically -->
+                    <li class="empty-history">No rounds played yet. Make a move!</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Bottom Controls & Utility Bar -->
+        <footer>
+            <div class="footer-controls">
+                <button id="sound-toggle-btn" class="utility-btn" aria-label="Toggle Sound">
+                    <svg class="control-icon speaker-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M12 4L6 9H2v6h4l6 5V4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path id="sound-waves" d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span>SOUND: ON</span>
+                </button>
+                <button id="rules-toggle-btn" class="utility-btn">
+                    <svg class="control-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 16v-4M12 8h.01" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <span>RULES</span>
+                </button>
+            </div>
+            <p class="copyright">&copy; 2026 Retro Arcade Studio</p>
+        </footer>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <button class="modal-close" id="close-modal-btn">&times;</button>
+            <h2>Game Rules</h2>
+            <p class="modal-intro">"Snake, Water, and Gun" is a classical hand game based on three elements, each defeating one and falling to another.</p>
+            <div class="rules-grid">
+                <div class="rule-item snake-theme">
+                    <div class="rule-title">🐍 Snake drinks 💧 Water</div>
+                    <p class="rule-desc">Snake wins against Water. Water is harmless to Snake, who easily consumes it.</p>
+                </div>
+                <div class="rule-item water-theme">
+                    <div class="rule-title">💧 Water rusts 🔫 Gun</div>
+                    <p class="rule-desc">Water wins against Gun. Dropping a mechanical gun in water ruins its firing mechanism.</p>
+                </div>
+                <div class="rule-item gun-theme">
+                    <div class="rule-title">🔫 Gun shoots 🐍 Snake</div>
+                    <p class="rule-desc">Gun wins against Snake. The bullet stops the threat instantly from a safe distance.</p>
+                </div>
+            </div>
+            <div class="modal-note">
+                <p>If both choose the same weapon, it is a <strong>TIE</strong> and the battle is resolved in a draw.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script imports -->
+    <script type="module" src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>
